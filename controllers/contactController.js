@@ -63,11 +63,7 @@ const getContact = asyncHandler(async(req,res)=>{
         const [rows] = await pool.query("SELECT * FROM Contact_Details WHERE ID = ?",[req.params.id]);
         res.json({
         message: `Get Contact with ID:  ${req.params.id} `,
-        data:{
-            Name : rows[0].Name,
-            Email : rows[0].Email,
-            Number : rows[0].Number,
-        }
+        data:rows,
     });
     }
     catch(err){
@@ -90,7 +86,15 @@ const updateContact = asyncHandler(async(req,res)=>{
             [req.body.Name,req.body.Email,req.body.Number,req.params.id]);
             res.json({
                 message: `Updated Contact with ID:  ${req.params.id} `,
+                data:
+                {
+                    Name: req.body.Name,
+                    Email: req.body.Email,
+                    Number: req.body.Number,
+                    ID : req.params.id
+                }
             })
+            
     }
     catch(err){
         console.log("Database connection error:", err);

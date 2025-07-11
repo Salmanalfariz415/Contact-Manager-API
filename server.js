@@ -8,6 +8,7 @@ let port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use("/api/contacts", require("./routes/contactRoutes"));
+app.use("/api/users",require("./routes/userRoutes"));
 
 app.listen(port, () => {
   console.log("Server is running on port 3001");
