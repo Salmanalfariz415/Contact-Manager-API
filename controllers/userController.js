@@ -28,7 +28,7 @@ const registerUser = asyncHandler(async(req,res)=>{
         
         const [row] = await pool.query("INSERT INTO user_details (UserName,Email,Password) VALUES (?, ?, ?)",
             [Name, Email, hashedPassword]);
-
+ 
 
         res.json({
             message : "User registered successfully",

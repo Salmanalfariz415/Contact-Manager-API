@@ -5,13 +5,13 @@ const pool = require('../config/database'); // Importing the database connection
 
 //@desc Get all contacts
 //@route GET /api/contacts
-//@access Public
+//@access private
 
 const asyncHandler = require("express-async-handler");
 
 const getAllContact = asyncHandler(async(req,res)=>{
     try{
-        const [rows]=await pool.query("SELECT * FROM Contact_Details");
+        const [rows]=await pool.query("SELECT * FROM Contact_Details WHERE User_ID = ?", [req.user.id]);
         res.json({
         message: "Get all contacts",
         data:rows
@@ -22,27 +22,27 @@ const getAllContact = asyncHandler(async(req,res)=>{
             message:"Error fetching contacts",
             error:err.message
         })
-        console.err("Database connection error:", err);
+        console.error("Database connection error:", err);
         throw err;
     }
 })
 
 //@desc Create new contacts
 //@route POST /api/contacts
-//@access Public
+//@access private
 const createContact = asyncHandler(async(req,res)=>{
     try{
-        const [result] = await pool.query("INSERT INTO Contact_Details (Name,Email,Number) VALUES (?, ?, ?)",
+        const [result] = await pool.query("INSERT INTO Contact_Details (Name,Email,Number,User_ID) VALUES (?, ?, ?,?) ",
             //The ? placeholders work very much like %d, %s in C — they are parameter markers used in prepared statements.
-        [req.body.Name, req.body.Email, req.body.Number]);
+        [req.body.Name, req.body.Email, req.body.Number,req.user.id]);
         res.json({
         message: "Create Contacts",
         data: {
             Name: req.body.Name,
             Email: req.body.Email,
             Number: req.body.Number,
-            insertId: result.insertId  // used in post,put,update
-        }
+            user_ID: req.user.id
+         }
     });
     }
     catch(err){
@@ -57,17 +57,17 @@ const createContact = asyncHandler(async(req,res)=>{
 
 //@desc Get contact with id
 //@route GET /api/contacts/:id
-//@access Public
+//@access private
 const getContact = asyncHandler(async(req,res)=>{
     try{
-        const [rows] = await pool.query("SELECT * FROM Contact_Details WHERE ID = ?",[req.params.id]);
+        const [rows] = await pool.query("SELECT * FROM Contact_Details WHERE User_ID = ? AND ID = ?",[req.user.id,req.params.id]);
         res.json({
         message: `Get Contact with ID:  ${req.params.id} `,
         data:rows,
     });
     }
     catch(err){
-        console.eroor("Database connection error:", err);
+        console.error("Database connection error:", err);
         res.status(500).json({
             message:"Error fetching contact",
             error:err.message
@@ -79,11 +79,11 @@ const getContact = asyncHandler(async(req,res)=>{
 
 //@desc Create new contacts
 //@route PUT /api/contacts/:id
-//@access Public
+//@access private
 const updateContact = asyncHandler(async(req,res)=>{
     try{
-        const [result]= await pool.query("UPDATE Contact_Details SET Name = ?,Email = ?,Number =? WHERE ID = ?",
-            [req.body.Name,req.body.Email,req.body.Number,req.params.id]);
+        const [result]= await pool.query("UPDATE Contact_Details SET Name = ?,Email = ?,Number =? WHERE User_ID = ? AND ID = ?",
+            [req.body.Name,req.body.Email,req.body.Number,req.user.id,req.params.id]);
             res.json({
                 message: `Updated Contact with ID:  ${req.params.id} `,
                 data:
@@ -91,7 +91,8 @@ const updateContact = asyncHandler(async(req,res)=>{
                     Name: req.body.Name,
                     Email: req.body.Email,
                     Number: req.body.Number,
-                    ID : req.params.id
+                    ID : req.params.id,
+                    User_ID : req.user.id
                 }
             })
             
@@ -109,10 +110,10 @@ const updateContact = asyncHandler(async(req,res)=>{
 
 //@desc Delete new contacts
 //@route DELETE /api/contacts/:id
-//@access Public
+//@access private
 const deleteContact = asyncHandler(async(req,res)=>{
     try{
-        const [result]= await pool.query("DELETE FROM Contact_Details WHERE id = ?",req.params.id);
+        const [result]= await pool.query("DELETE FROM Contact_Details WHERE User_ID = ? AND ID =?",[req.user.id,req.params.id]);
         res.json({
         message: `Deleted Contact with ID:  ${req.params.id} `
     });

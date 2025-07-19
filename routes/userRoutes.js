@@ -6,9 +6,10 @@ const {registerUser,loginUser,currentUser}= require('../controllers/userControll
 
 router.post('/register',registerUser);
 
+
 router.post('/login',loginUser);
 
-router.get('/current',validate,currentUser);
+router.get('/current',validate,currentUser);// Apply the validate middleware to the current user route only
 
 
 module.exports = router;
