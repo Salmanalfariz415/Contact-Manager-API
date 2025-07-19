@@ -34,3 +34,4 @@ const errorHandler=(err,req,res,next)=>{
         default:break;
     }
 }
+module.exports = errorHandler;
